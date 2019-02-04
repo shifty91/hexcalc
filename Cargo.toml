@@ -1,0 +1,12 @@
+[package]
+name = "hexcalc"
+version = "0.1.0"
+authors = ["Kurt Kanzenbach <kurt@kmk-computers.de>"]
+
+[dependencies]
+pest = "2.1"
+pest_derive = "2.1"
+liner = "0.4.3"
+termion = "1.5.1"
+clap = "2.32.0"
+libc = "0.2"

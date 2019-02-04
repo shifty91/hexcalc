@@ -1,0 +1,21 @@
+num = _{ hex_num | dec_num | oct_num | bin_num }
+hex_num = @{ "0x" ~ ( ASCII_DIGIT | "a" | "b" | "c" | "d" | "e" | "f" )+ }
+dec_num = @{ ASCII_DIGIT+ }
+oct_num = @{ "o" ~ ( "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" )+ }
+bin_num = @{ "b" ~ ( "0" | "1" )+ }
+
+operation = _{ add | subtract | multiply | divide | and | or | xor }
+    add      = { "+" }
+    subtract = { "-" }
+    multiply = { "*" }
+    divide   = { "/" }
+    and      = { "&" }
+    or       = { "|" }
+    xor      = { "^" }
+
+expr = { term ~ (operation ~ term)* }
+term = _{ num | "(" ~ expr ~ ")" }
+
+calculation = _{ SOI ~ expr ~ EOI }
+
+WHITESPACE = _{ " " | "\t" | "\n" }
