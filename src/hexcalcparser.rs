@@ -61,11 +61,11 @@ impl HexCalcParser {
             expression,
             |pair: Pair<Rule>| match pair.as_rule() {
                 Rule::hex_num => i64::from_str_radix(
-                    pair.as_str().trim_left_matches("0x"), 16).unwrap(),
+                    pair.as_str().trim_start_matches("0x"), 16).unwrap(),
                 Rule::oct_num => i64::from_str_radix(
-                    pair.as_str().trim_left_matches("o"), 8).unwrap(),
+                    pair.as_str().trim_start_matches("o"), 8).unwrap(),
                 Rule::bin_num => i64::from_str_radix(
-                    pair.as_str().trim_left_matches("b"), 2).unwrap(),
+                    pair.as_str().trim_start_matches("b"), 2).unwrap(),
                 Rule::dec_num => pair.as_str().parse::<i64>().unwrap(),
                 Rule::expr => self.eval(pair.into_inner()),
                 _ => unreachable!(),
