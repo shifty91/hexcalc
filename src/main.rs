@@ -31,12 +31,20 @@ extern crate clap;
 extern crate libc;
 
 use std::io::prelude::*;
-use liner::Context;
+use liner::{Context, Completer};
 use termion::{color, style};
 use clap::App;
 use hexcalcparser::HexCalcParser;
 
 mod hexcalcparser;
+
+struct EmptyCompleter;
+
+impl Completer for EmptyCompleter {
+    fn completions(&mut self, _start: &str) -> Vec<String> {
+        Vec::new()
+    }
+}
 
 #[allow(unused_must_use)]
 fn main() {
@@ -64,7 +72,8 @@ fn main() {
     let mut con = Context::new();
 
     loop {
-        let res = con.read_line("=> ", &mut |_| {});
+        let res = con.read_line("=> ", Some(Box::new(|s| String::from(s))),
+                                &mut EmptyCompleter);
 
         if res.is_err() {
             break;
