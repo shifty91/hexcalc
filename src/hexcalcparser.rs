@@ -44,13 +44,15 @@ pub struct HexCalcParser {
 impl HexCalcParser {
     pub fn new() -> HexCalcParser {
         let climber = PrecClimber::new(vec![
-            Operator::new(Rule::add,      Assoc::Left) |
-            Operator::new(Rule::subtract, Assoc::Left),
-            Operator::new(Rule::multiply, Assoc::Left) |
-            Operator::new(Rule::divide,   Assoc::Left),
-            Operator::new(Rule::and,      Assoc::Left) |
-            Operator::new(Rule::or,       Assoc::Left) |
-            Operator::new(Rule::xor,      Assoc::Left),
+            Operator::new(Rule::add,        Assoc::Left) |
+            Operator::new(Rule::subtract,   Assoc::Left),
+            Operator::new(Rule::multiply,   Assoc::Left) |
+            Operator::new(Rule::divide,     Assoc::Left),
+            Operator::new(Rule::and,        Assoc::Left) |
+            Operator::new(Rule::or,         Assoc::Left) |
+            Operator::new(Rule::xor,        Assoc::Left) |
+            Operator::new(Rule::shiftleft,  Assoc::Left) |
+            Operator::new(Rule::shiftright, Assoc::Left),
         ]);
 
         HexCalcParser { climber }
@@ -71,13 +73,15 @@ impl HexCalcParser {
                 _ => unreachable!(),
             },
             |lhs: i64, op: Pair<Rule>, rhs: i64| match op.as_rule() {
-                Rule::add      => lhs + rhs,
-                Rule::subtract => lhs - rhs,
-                Rule::multiply => lhs * rhs,
-                Rule::divide   => lhs / rhs,
-                Rule::and      => lhs & rhs,
-                Rule::or       => lhs | rhs,
-                Rule::xor      => lhs ^ rhs,
+                Rule::add        => lhs + rhs,
+                Rule::subtract   => lhs - rhs,
+                Rule::multiply   => lhs * rhs,
+                Rule::divide     => lhs / rhs,
+                Rule::and        => lhs & rhs,
+                Rule::or         => lhs | rhs,
+                Rule::xor        => lhs ^ rhs,
+                Rule::shiftleft  => lhs << rhs,
+                Rule::shiftright => lhs >> rhs,
                 _ => unreachable!(),
             },
         )
@@ -110,9 +114,13 @@ fn test_bitops() {
     let res0 = parser.parse("0xff & 0x01").unwrap();
     let res1 = parser.parse("0x1 | 0xfe").unwrap();
     let res2 = parser.parse("0xff ^ 0xff").unwrap();
+    let res3 = parser.parse("2 << 1").unwrap();
+    let res4 = parser.parse("4 >> 2").unwrap();
     assert_eq!(res0, 0x01);
     assert_eq!(res1, 0xff);
     assert_eq!(res2, 0x00);
+    assert_eq!(res3, 0x04);
+    assert_eq!(res4, 0x01);
 }
 
 #[test]

@@ -4,14 +4,16 @@ dec_num = @{ ASCII_DIGIT+ }
 oct_num = @{ "o" ~ ( "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" )+ }
 bin_num = @{ "b" ~ ( "0" | "1" )+ }
 
-operation = _{ add | subtract | multiply | divide | and | or | xor }
-    add      = { "+" }
-    subtract = { "-" }
-    multiply = { "*" }
-    divide   = { "/" }
-    and      = { "&" }
-    or       = { "|" }
-    xor      = { "^" }
+operation = _{ add | subtract | multiply | divide | and | or | xor | shiftleft | shiftright }
+    add        = { "+" }
+    subtract   = { "-" }
+    multiply   = { "*" }
+    divide     = { "/" }
+    and        = { "&" }
+    or         = { "|" }
+    xor        = { "^" }
+    shiftleft  = { "<<" }
+    shiftright = { ">>" }
 
 expr = { term ~ (operation ~ term)* }
 term = _{ num | "(" ~ expr ~ ")" }
