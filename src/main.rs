@@ -49,7 +49,7 @@ impl Completer for EmptyCompleter {
 #[allow(unused_must_use)]
 fn main() {
     App::new("hexcalc")
-        .version("0.1.0")
+        .version("0.2.0")
         .about("Hex Calculator")
         .author("Kurt Kanzenbach <kurt@kmk-computers.de>")
         .get_matches();
