@@ -62,7 +62,7 @@ fn main() {
         for line in stdin.lock().lines() {
             let line = line.unwrap();
             match parser.parse(&line) {
-                Ok(res) => println!("{} : 0x{:x}", res, res),
+                Ok(res) => println!("{} : 0x{:x} : {:#b}", res, res, res),
                 Err(e)  => println!("Failed to parse line '{}':\n{}", line, e),
             }
         }
