@@ -1,4 +1,4 @@
-// Copyright 2019 Kurt Kanzenbach <kurt@kmk-computers.de>
+// Copyright 2019,2020 Kurt Kanzenbach <kurt@kmk-computers.de>
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are met:
