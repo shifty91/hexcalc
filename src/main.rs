@@ -85,9 +85,9 @@ fn main() {
         }
 
         match parser.parse(&res) {
-            Ok(res) => println!("{}{}{} : 0x{:x}{}", style::Bold,
+            Ok(res) => println!("{}{}{} : 0x{:x} : {:#b}{}", style::Bold,
                                 color::Fg(color::Green),
-                                res, res, style::Reset),
+                                res, res, res, style::Reset),
             Err(e)  => println!("Failed to parse line '{}':\n{}{}{}{}", res,
                                 style::Bold, color::Fg(color::Red), e,
                                 style::Reset),
