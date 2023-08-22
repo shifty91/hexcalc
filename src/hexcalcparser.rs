@@ -1,4 +1,4 @@
-// Copyright 2019,2020 Kurt Kanzenbach <kurt@kmk-computers.de>
+// Copyright 2019-2023 Kurt Kanzenbach <kurt@kmk-computers.de>
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are met:
@@ -24,15 +24,15 @@
 
 use std::i64;
 use pest::Parser;
-use pest::iterators::{Pair, Pairs};
-use pest::prec_climber::{PrecClimber, Assoc, Operator};
+use pest::iterators::Pairs;
+use pest::pratt_parser::{PrattParser, Assoc, Op};
 
 #[derive(Parser)]
 #[grammar = "calc.pest"]
 pub struct CalcParser;
 
 pub struct HexCalcParser {
-    climber: PrecClimber<Rule>,
+    parser: PrattParser<Rule>,
 }
 
 ///
@@ -43,53 +43,50 @@ pub struct HexCalcParser {
 ///
 impl HexCalcParser {
     pub fn new() -> HexCalcParser {
-        let climber = PrecClimber::new(vec![
-            Operator::new(Rule::add,        Assoc::Left) |
-            Operator::new(Rule::subtract,   Assoc::Left),
-            Operator::new(Rule::multiply,   Assoc::Left) |
-            Operator::new(Rule::divide,     Assoc::Left),
-            Operator::new(Rule::and,        Assoc::Left) |
-            Operator::new(Rule::or,         Assoc::Left) |
-            Operator::new(Rule::xor,        Assoc::Left) |
-            Operator::new(Rule::shiftleft,  Assoc::Left) |
-            Operator::new(Rule::shiftright, Assoc::Left),
-        ]);
+        let parser = PrattParser::new()
+            .op(Op::infix(Rule::add,        Assoc::Left) |
+                Op::infix(Rule::subtract,   Assoc::Left))
+            .op(Op::infix(Rule::multiply,   Assoc::Left) |
+                Op::infix(Rule::divide,     Assoc::Left))
+            .op(Op::infix(Rule::and,        Assoc::Left) |
+                Op::infix(Rule::or,         Assoc::Left) |
+                Op::infix(Rule::xor,        Assoc::Left) |
+                Op::infix(Rule::shiftleft,  Assoc::Left) |
+                Op::infix(Rule::shiftright, Assoc::Left));
 
-        HexCalcParser { climber }
+        HexCalcParser { parser }
     }
 
     fn eval(&self, expression: Pairs<Rule>) -> i64 {
-        self.climber.climb(
-            expression,
-            |pair: Pair<Rule>| match pair.as_rule() {
-                Rule::hex_num => i64::from_str_radix(
-                    pair.as_str().trim_start_matches("0x"), 16).unwrap(),
-                Rule::oct_num => i64::from_str_radix(
-                    pair.as_str().trim_start_matches("o"), 8).unwrap(),
-                Rule::bin_num => i64::from_str_radix(
-                    pair.as_str().trim_start_matches("b"), 2).unwrap(),
-                Rule::dec_num => pair.as_str().parse::<i64>().unwrap(),
-                Rule::expr => self.eval(pair.into_inner()),
-                _ => unreachable!(),
-            },
-            |lhs: i64, op: Pair<Rule>, rhs: i64| match op.as_rule() {
-                Rule::add        => lhs + rhs,
-                Rule::subtract   => lhs - rhs,
-                Rule::multiply   => lhs * rhs,
-                Rule::divide     => lhs / rhs,
-                Rule::and        => lhs & rhs,
-                Rule::or         => lhs | rhs,
-                Rule::xor        => lhs ^ rhs,
-                Rule::shiftleft  => lhs << rhs,
-                Rule::shiftright => lhs >> rhs,
-                _ => unreachable!(),
-            },
-        )
+        self.parser.map_primary(|primary| match primary.as_rule() {
+            Rule::hex_num => i64::from_str_radix(
+                primary.as_str().trim_start_matches("0x"), 16).unwrap(),
+            Rule::oct_num => i64::from_str_radix(
+                primary.as_str().trim_start_matches("o"), 8).unwrap(),
+            Rule::bin_num => i64::from_str_radix(
+                primary.as_str().trim_start_matches("b"), 2).unwrap(),
+            Rule::dec_num => primary.as_str().parse::<i64>().unwrap(),
+            Rule::expr => self.eval(primary.into_inner()),
+            _ => unreachable!(),
+        })
+        .map_infix(|lhs, op, rhs| match op.as_rule() {
+            Rule::add        => lhs + rhs,
+            Rule::subtract   => lhs - rhs,
+            Rule::multiply   => lhs * rhs,
+            Rule::divide     => lhs / rhs,
+            Rule::and        => lhs & rhs,
+            Rule::or         => lhs | rhs,
+            Rule::xor        => lhs ^ rhs,
+            Rule::shiftleft  => lhs << rhs,
+            Rule::shiftright => lhs >> rhs,
+            _ => unreachable!(),
+        })
+        .parse(expression)
     }
 
     pub fn parse(&self, line: &str) -> Result<i64, String> {
         match CalcParser::parse(Rule::calculation, &line) {
-            Ok(calculation) => Ok(self.eval(calculation)),
+            Ok(mut calculation) => Ok(self.eval(calculation.next().unwrap().into_inner())),
             Err(e) => Err(e.to_string()),
         }
     }
