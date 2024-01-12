@@ -31,7 +31,7 @@ extern crate clap;
 extern crate libc;
 
 use std::io::prelude::*;
-use liner::{Context, Completer};
+use liner::{Context, Completer, Prompt};
 use termion::{color, style};
 use clap::App;
 use hexcalcparser::HexCalcParser;
@@ -72,7 +72,8 @@ fn main() {
     let mut con = Context::new();
 
     loop {
-        let res = con.read_line("=> ", Some(Box::new(|s| String::from(s))),
+        let res = con.read_line(Prompt::from("=> "),
+                                Some(Box::new(|s| String::from(s))),
                                 &mut EmptyCompleter);
 
         if res.is_err() {
