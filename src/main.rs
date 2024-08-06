@@ -55,7 +55,7 @@ fn main() {
         .get_matches();
 
     let parser = HexCalcParser::new();
-    let istty = unsafe { libc::isatty(libc::STDIN_FILENO as i32) } != 0;
+    let istty = unsafe { libc::isatty(libc::STDIN_FILENO) } != 0;
 
     if ! istty {
         let stdin = std::io::stdin();

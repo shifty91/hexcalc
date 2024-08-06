@@ -22,7 +22,6 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
-use std::i64;
 use pest::Parser;
 use pest::iterators::Pairs;
 use pest::pratt_parser::{PrattParser, Assoc, Op};
@@ -85,7 +84,7 @@ impl HexCalcParser {
     }
 
     pub fn parse(&self, line: &str) -> Result<i64, String> {
-        match CalcParser::parse(Rule::calculation, &line) {
+        match CalcParser::parse(Rule::calculation, line) {
             Ok(mut calculation) => Ok(self.eval(calculation.next().unwrap().into_inner())),
             Err(e) => Err(e.to_string()),
         }
